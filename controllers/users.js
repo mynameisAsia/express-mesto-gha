@@ -9,10 +9,16 @@ module.exports.getUsers = (req, res) => {
 module.exports.getUser = (req, res) => {
   const { userId } = req.params;
   User.findById(userId)
-    .then((user) => res.status(200).send({ data: user }))
-    .catch((err) => {
-      if (err.name === 'CastError') {
+    .then((user) => {
+      if (!user) {
         res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
+        return;
+      }
+      res.status(200).send({ data: user });
+    })
+    .catch((err) => {
+      if (err.kind === 'ObjectId') {
+        res.status(400).send({ message: 'Переданы некорректные данные пользователя' });
       } else {
         res.status(500).send({ message: 'Произошла ошибка' });
       }
@@ -37,36 +43,42 @@ module.exports.createUser = (req, res) => {
 
 module.exports.updateUser = (req, res) => {
   const { name, about } = req.body;
-  User.findByIdAndUpdate(req.user._id, { name, about })
-    .then((user) => res.status(200).send({ data: user }))
+  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
+    .then((user) => {
+      if (!user) {
+        res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
+        return;
+      }
+      res.status(200).send({ data: user });
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({
           message: 'Переданы некорректные данные при обновлении профиля',
         });
-      } else if (err.name === 'CastError') {
-        res.status(404).send({
-          message: 'Запрашиваемый пользователь не найден. ',
-        });
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
       }
-      res.status(500).send({ message: 'Произошла ошибка' });
     });
 };
 
 module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate(req.user._id, { avatar })
-    .then((user) => res.status(200).send({ data: user }))
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
+    .then((user) => {
+      if (!user) {
+        res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
+        return;
+      }
+      res.status(200).send({ data: user });
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({
           message: 'Переданы некорректные данные при обновлении аватара',
         });
-      } else if (err.name === 'CastError') {
-        res.status(404).send({
-          message: 'Запрашиваемый пользователь не найден. ',
-        });
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
       }
-      res.status(500).send({ message: 'Произошла ошибка' });
     });
 };
