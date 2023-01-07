@@ -15,9 +15,6 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
 
 // подключаем мидлвары, роуты и всё остальное...
 app.use(express.json());
-app.use((req, res) => {
-  res.status(404).json({ message: 'Путь не найден' });
-});
 app.use((req, res, next) => {
   req.user = {
     _id: '63b4964259af717ef19ae9d0',
@@ -26,5 +23,9 @@ app.use((req, res, next) => {
   next();
 });
 app.use(router);
+
+app.use('*', (req, res) => {
+  res.status(404).send({ message: 'Путь не найден' });
+});
 
 app.listen(PORT);
