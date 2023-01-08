@@ -64,8 +64,8 @@ module.exports.updateUser = (req, res) => {
           message: 'Переданы некорректные данные при обновлении профиля',
         });
       } else if (err.name === 'CastError') {
-        res.status(notFound).send({
-          message: 'Передан некорректный _id карточки',
+        res.status(badRequest).send({
+          message: 'Передан некорректный _id пользователя',
         });
       } else {
         res.status(internalError).send({ message: 'Произошла ошибка' });
@@ -89,8 +89,8 @@ module.exports.updateAvatar = (req, res) => {
           message: 'Переданы некорректные данные при обновлении аватара',
         });
       } else if (err.name === 'CastError') {
-        res.status(notFound).send({
-          message: 'Передан некорректный _id карточки.',
+        res.status(badRequest).send({
+          message: 'Передан некорректный _id пользователя.',
         });
       } else {
         res.status(internalError).send({ message: 'Произошла ошибка' });

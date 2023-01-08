@@ -3,6 +3,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const router = require('./routes');
+const { notFound } = require('./constants/errors');
 
 const { PORT = 3000 } = process.env;
 
@@ -25,7 +26,7 @@ app.use((req, res, next) => {
 app.use(router);
 
 app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Путь не найден' });
+  res.status(notFound).send({ message: 'Путь не найден' });
 });
 
 app.listen(PORT);
