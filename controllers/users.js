@@ -69,7 +69,8 @@ module.exports.createUser = (req, res) => {
       email,
       password: hash,
     }))
-    .then((user) => res.status(okCreated).send({ data: user }))
+    // eslint-disable-next-line object-curly-newline
+    .then(() => res.status(okCreated).send({ data: { name, about, avatar, email } }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(badRequest).send({
