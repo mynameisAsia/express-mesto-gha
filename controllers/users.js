@@ -24,9 +24,6 @@ module.exports.login = (req, res) => {
       res.cookie('jwt', token, { maxAge: 3600000, httpOnly: true }).send({ token });
     })
     .catch((err) => {
-      if (err.code === 11000) {
-        res.status(conflict).send({ message: 'Конфликтирующий запрос' });
-      }
       res.status(authError).send({ message: err.message });
     });
 };
@@ -78,6 +75,8 @@ module.exports.createUser = (req, res) => {
         res.status(badRequest).send({
           message: 'Переданы некорректные данные при создании пользователя',
         });
+      } else if (err.code === 11000) {
+        res.status(conflict).send({ message: 'Такой email уже существует' });
       } else {
         res.status(internalError).send({ message: 'Произошла ошибка' });
       }
