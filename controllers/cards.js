@@ -3,6 +3,7 @@ const {
   ok,
   okCreated,
   badRequest,
+  forbidden,
   notFound,
   internalError,
 } = require('../constants/errors');
@@ -36,6 +37,10 @@ module.exports.deleteCard = (req, res) => {
     .then((card) => {
       if (!card) {
         res.status(notFound).send({ message: 'Запрашиваемая карточка не найдена' });
+        return;
+      }
+      if (card.owner !== req.user._id) {
+        res.status(forbidden).send({ message: 'Вы не можете удалять чужие карточки' });
         return;
       }
       res.status(ok).send({ data: card });
