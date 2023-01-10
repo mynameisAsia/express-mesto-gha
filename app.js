@@ -2,6 +2,7 @@
 
 const express = require('express');
 const mongoose = require('mongoose');
+const { errors } = require('celebrate');
 const router = require('./routes');
 const auth = require('./middlewares/auth');
 const { createUser, login } = require('./controllers/users');
@@ -22,7 +23,7 @@ app.post('/signin', login);
 app.post('/signup', createUser);
 app.use(auth);
 app.use(router);
-
+app.use(errors());
 app.use('*', (req, res) => {
   res.status(notFound).send({ message: 'Путь не найден' });
 });

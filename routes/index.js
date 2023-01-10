@@ -1,7 +1,6 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 const { login, createUser } = require('../controllers/users');
-const { createCard } = require('../controllers/cards');
 const { regexp } = require('../constants/regexp');
 const userRouter = require('./users');
 const cardRouter = require('./cards');
@@ -25,12 +24,5 @@ router.post('/signup', celebrate({
     avatar: Joi.string().min(2).pattern(regexp),
   }),
 }), createUser);
-
-router.post('/cards', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().min(2).pattern(regexp),
-  }),
-}), createCard);
 
 module.exports = router;
