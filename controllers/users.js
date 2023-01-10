@@ -21,13 +21,7 @@ module.exports.login = (req, res) => {
         'some-secret-key',
         { expiresIn: '7d' },
       );
-      res.cookie('jwt', token, { maxAge: 3600000, httpOnly: true }).send({
-        name: user.name,
-        about: user.about,
-        avatar: user.avatar,
-        email: user.email,
-        token,
-      });
+      res.cookie('jwt', token, { maxAge: 3600000, httpOnly: true }).send({ token });
     })
     .catch((err) => {
       res.status(authError).send({ message: err.message });
@@ -91,8 +85,7 @@ module.exports.createUser = (req, res) => {
 };
 
 module.exports.getCurrentUser = (req, res) => {
-  const { userId } = req.user._id;
-  User.findById(userId)
+  User.findById(req.user._id)
     .then((user) => {
       if (!user) {
         res.status(notFound).send({ message: 'Запрашиваемый пользователь не найден' });

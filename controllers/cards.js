@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 const Card = require('../models/card');
 const {
   ok,
@@ -32,18 +33,20 @@ module.exports.createCard = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res) => {
-  const { cardId } = req.params;
-  Card.findByIdAndRemove(cardId)
+  Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
         res.status(notFound).send({ message: 'Запрашиваемая карточка не найдена' });
         return;
       }
-      if (card.owner !== req.user._id) {
+      if (!card.owner.equals(req.user._id)) {
         res.status(forbidden).send({ message: 'Вы не можете удалять чужие карточки' });
         return;
       }
-      res.status(ok).send({ data: card });
+      Card.findByIdAndRemove(req.params.cardId)
+        .then(() => {
+          res.status(ok).send({ message: 'Карточка удалена' });
+        });
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
