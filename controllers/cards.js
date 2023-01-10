@@ -18,10 +18,9 @@ module.exports.createCard = (req, res, next) => {
     .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequest('Переданы некорректные данные при создании карточки');
-      } else {
-        next(err);
+        return next(new BadRequest('Переданы некорректные данные при создании карточки'));
       }
+      return next(err);
     });
 };
 
@@ -41,10 +40,9 @@ module.exports.deleteCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        throw new Forbidden('Вы не можете удалять чужие карточки');
-      } else {
-        next(err);
+        return next(new Forbidden('Вы не можете удалять чужие карточки'));
       }
+      return next(err);
     });
 };
 
@@ -58,10 +56,9 @@ module.exports.likeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        throw new BadRequest('Переданы некорректные данные для проставления лайка');
-      } else {
-        next(err);
+        return next(new BadRequest('Переданы некорректные данные для проставления лайка'));
       }
+      return next(err);
     });
 };
 
@@ -76,8 +73,7 @@ module.exports.removeLike = (req, res, next) => {
     .catch((err) => {
       if (err.kind === 'ObjectId') {
         throw new BadRequest('Переданы некорректные данные для удаления лайка');
-      } else {
-        next(err);
       }
+      return next(err);
     });
 };
