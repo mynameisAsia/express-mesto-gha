@@ -21,7 +21,13 @@ module.exports.login = (req, res) => {
         'some-secret-key',
         { expiresIn: '7d' },
       );
-      res.cookie('jwt', token, { maxAge: 3600000, httpOnly: true }).send({ token });
+      res.cookie('jwt', token, { maxAge: 3600000, httpOnly: true }).send({
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+        token,
+      });
     })
     .catch((err) => {
       res.status(authError).send({ message: err.message });
