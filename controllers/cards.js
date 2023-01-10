@@ -1,100 +1,83 @@
 /* eslint-disable consistent-return */
+const BadRequest = require('../errors/BadRequest');
+const Forbidden = require('../errors/Forbidden');
+const NotFound = require('../errors/NotFound');
 const Card = require('../models/card');
-const {
-  ok,
-  okCreated,
-  badRequest,
-  forbidden,
-  notFound,
-  internalError,
-} = require('../constants/errors');
 
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
-    .then((cards) => res.status(ok).send({ data: cards }))
-    .catch(() => res.status(internalError).send({ message: 'Произошла ошибка' }));
+    .then((cards) => res.status(200).send({ data: cards }))
+    .catch(next);
 };
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((card) => res.status(okCreated).send({ data: card }))
+    .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(badRequest).send({
-          message: 'Переданы некорректные данные при создании карточки',
-        });
+        throw new BadRequest('Переданы некорректные данные при создании карточки');
       } else {
-        res.status(internalError).send({ message: 'Произошла ошибка' });
+        next(err);
       }
     });
 };
 
-module.exports.deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
-        res.status(notFound).send({ message: 'Запрашиваемая карточка не найдена' });
-        return;
+        throw new NotFound('Запрашиваемая карточка не найдена');
       }
       if (!card.owner.equals(req.user._id)) {
-        res.status(forbidden).send({ message: 'Вы не можете удалять чужие карточки' });
-        return;
+        throw new Forbidden('Вы не можете удалять чужие карточки');
       }
       Card.findByIdAndRemove(req.params.cardId)
         .then(() => {
-          res.status(ok).send({ message: 'Карточка удалена' });
+          res.status(200).send({ message: 'Карточка удалена' });
         });
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        res.status(badRequest).send({
-          message: 'Переданы некорректные данные для удаления карточки',
-        });
+        throw new Forbidden('Вы не можете удалять чужие карточки');
       } else {
-        res.status(internalError).send({ message: 'Произошла ошибка' });
+        next(err);
       }
     });
 };
 
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
     .then((card) => {
       if (!card) {
-        res.status(notFound).send({ message: 'Запрашиваемая карточка не найдена' });
-        return;
+        throw new NotFound('Запрашиваемая карточка не найдена');
       }
-      res.status(ok).send({ data: card });
+      res.status(200).send({ data: card });
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        res.status(badRequest).send({
-          message: 'Переданы некорректные данные для проставления лайка',
-        });
+        throw new BadRequest('Переданы некорректные данные для проставления лайка');
       } else {
-        res.status(internalError).send({ message: 'Произошла ошибка' });
+        next(err);
       }
     });
 };
 
-module.exports.removeLike = (req, res) => {
+module.exports.removeLike = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
     .then((card) => {
       if (!card) {
-        res.status(notFound).send({ message: 'Запрашиваемая карточка не найдена' });
-        return;
+        throw new NotFound('Запрашиваемая карточка не найдена');
       }
-      res.status(ok).send({ data: card });
+      res.status(200).send({ data: card });
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        res.status(badRequest).send({
-          message: 'Переданы некорректные данные для удаления лайка',
-        });
+        throw new BadRequest('Переданы некорректные данные для удаления лайка');
       } else {
-        res.status(internalError).send({ message: 'Произошла ошибка' });
+        next(err);
       }
     });
 };

@@ -5,6 +5,7 @@ const { regexp } = require('../constants/regexp');
 const auth = require('../middlewares/auth');
 const userRouter = require('./users');
 const cardRouter = require('./cards');
+const NotFound = require('../errors/NotFound');
 
 router.use('/users', auth, userRouter);
 router.use('/cards', auth, cardRouter);
@@ -25,5 +26,9 @@ router.post('/signup', celebrate({
     avatar: Joi.string().min(2).pattern(regexp),
   }),
 }), createUser);
+
+router.use('*', () => {
+  throw new NotFound('Путь не найден');
+});
 
 module.exports = router;
